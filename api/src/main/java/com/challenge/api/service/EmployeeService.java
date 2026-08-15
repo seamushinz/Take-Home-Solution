@@ -3,6 +3,7 @@ package com.challenge.api.service;
 import com.challenge.api.dto.EmployeeCreateRequest;
 import com.challenge.api.model.Employee;
 import com.challenge.api.model.EmployeeImplementation;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,9 +56,22 @@ public class EmployeeService {
         return employee;
     }
 
+    /**
+     * @implNote Creates a new Employee based on the provided request body.
+     * @param requestBody The request body containing employee details.
+     * @return The created Employee.
+     */
     public Employee createEmployee(EmployeeCreateRequest requestBody) {
         // Implement logic to create a new Employee
         UUID id = UUID.randomUUID();
+
+        // Validate request body dates
+        Instant terminationDate = requestBody.contractTerminationDate();
+
+        if (terminationDate != null && terminationDate.isBefore(requestBody.contractHireDate())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Contract termination date cannot be before hire date");
+        }
         Employee employee = new EmployeeImplementation(
                 id,
                 requestBody.firstName(),

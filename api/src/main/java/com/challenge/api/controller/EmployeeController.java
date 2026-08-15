@@ -3,6 +3,7 @@ package com.challenge.api.controller;
 import com.challenge.api.dto.EmployeeCreateRequest;
 import com.challenge.api.model.Employee;
 import com.challenge.api.service.EmployeeService;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,11 +46,11 @@ public class EmployeeController {
 
     /**
      * @implNote Need not be concerned with an actual persistence layer.
-     * @param requestBody hint!
+     * @param requestBody Validated request body containing Employee details
      * @return Newly created Employee
      */
     @PostMapping
-    public Employee createEmployee(@RequestBody EmployeeCreateRequest requestBody) {
+    public Employee createEmployee(@Valid @RequestBody EmployeeCreateRequest requestBody) {
         return employeeService.createEmployee(requestBody);
     }
 }
