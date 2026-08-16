@@ -4,24 +4,33 @@ import com.challenge.api.dto.EmployeeCreateRequest;
 import com.challenge.api.model.Employee;
 import com.challenge.api.model.EmployeeImplementation;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-// Service layer for Employee Controller
+/**
+ * Service layer for Employee operations.
+ * @implNote Uses mock in-memory storage.
+ */
 @Service
 public class EmployeeService {
 
-    // Map of mock Employees, to be replaced with existing employee management solution repository
+    /**
+     * @implNote Map of mock Employees, to be replaced with existing employee management solution repository
+     */
     private final Map<UUID, Employee> employeeRepository;
 
+    /**
+     * Initializes the EmployeeService with mock Employee objects.
+     */
     public EmployeeService() {
-        // create mock Employee list
-        employeeRepository = new HashMap<>();
+        employeeRepository = new ConcurrentHashMap<>();
         Employee employee1 = new EmployeeImplementation(UUID.randomUUID());
         employee1.setFullName("John Doe");
         employee1.setEmail("john.doe@example.com");
@@ -42,9 +51,12 @@ public class EmployeeService {
     }
 
     /**
-     * @implNote Returns a mock Employee object from an in-memory map of Employees.
-     * @param uuid Employee UUID
-     * @return Requested Employee if exists
+     * Returns the employee identified by the supplied UUID.
+     *
+     * @param uuid Employee's UUID
+     * @return Matching employee
+     * @throws ResponseStatusException with status {@code 404 Not Found} if no
+     *     employee has the supplied UUID
      */
     public Employee getEmployeeByUuid(UUID uuid) {
         Employee employee = employeeRepository.get(uuid);
@@ -55,14 +67,14 @@ public class EmployeeService {
 
         return employee;
     }
-
     /**
-     * @implNote Creates a new Employee based on the provided request body.
-     * @param requestBody The request body containing employee details.
-     * @return The created Employee.
+     * @implNote Creates a new Employee based on the provided request body
+     * @param requestBody validated employee creation request body
+     * @return The created Employee
+     * @throws ResponseStatusException with status {@code 400 Bad Request} if the
+     *  termination date is earlier than the hire date
      */
-    public Employee createEmployee(EmployeeCreateRequest requestBody) {
-        // Implement logic to create a new Employee
+    public Employee createEmployee(@NonNull EmployeeCreateRequest requestBody) {
         UUID id = UUID.randomUUID();
 
         // Validate request body dates

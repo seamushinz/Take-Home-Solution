@@ -17,10 +17,32 @@ public class EmployeeImplementation implements Employee {
     private Instant contractHireDate;
     private Instant contractTerminationDate;
 
+    /**
+     * Creates a partially populated employee for mock-data initialization.
+     *
+     * @param uuid the required unique employee identifier
+     * @throws NullPointerException if {@code uuid} is {@code null}
+     */
     public EmployeeImplementation(UUID uuid) {
         this.uuid = Objects.requireNonNull(uuid, "UUID is required non-null");
     }
 
+    /**
+     * Creates an employee from the fields required during employee creation.
+     *
+     * <p>The optional contract termination date is assigned separately after
+     * construction.
+     *
+     * @param uuid the required unique employee identifier
+     * @param firstName the employee's first name
+     * @param lastName the employee's last name
+     * @param salary the employee's salary
+     * @param age the employee's age
+     * @param jobTitle the employee's job title
+     * @param email the employee's email address
+     * @param contractHireDate the employee's contract hire date
+     * @throws NullPointerException if {@code uuid} is {@code null}
+     */
     public EmployeeImplementation(
             UUID uuid,
             String firstName,
@@ -84,7 +106,7 @@ public class EmployeeImplementation implements Employee {
     public void setFullName(String name) {
         String[] names = name.split(" ");
         this.firstName = names[0];
-        this.lastName = names[1];
+        this.lastName = names[names.length - 1];
     }
 
     @Override

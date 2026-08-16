@@ -1,0 +1,115 @@
+package com.challenge.api;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+@SpringBootTest(
+        properties = {"spring.security.user.name=employees-r-us", "spring.security.user.password=test-password"})
+@AutoConfigureMockMvc
+class EmployeeApiTests {
+
+    private static final String EMPLOYEE_API_PATH = "/api/v1/employee";
+    private static final String TEST_USERNAME = "employees-r-us";
+    private static final String TEST_PASSWORD = "test-password";
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    void getAllEmployeesWithoutCredentialsReturnsUnauthorized() throws Exception {
+        mockMvc.perform(get(EMPLOYEE_API_PATH).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void getEmployeeByUuidWithoutCredentialsReturnsUnauthorized() throws Exception {
+        mockMvc.perform(get(EMPLOYEE_API_PATH + "/00000000-0000-0000-0000-000000000000")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void createEmployeeWithoutCredentialsReturnsUnauthorized() throws Exception {
+        mockMvc.perform(post(EMPLOYEE_API_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void getAllEmployeesWithValidCredentialsReturnsOk() throws Exception {
+        mockMvc.perform(get(EMPLOYEE_API_PATH)
+                        .with(httpBasic(TEST_USERNAME, TEST_PASSWORD))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getAllEmployeesWithInvalidCredentialsReturnsUnauthorized() throws Exception {
+        mockMvc.perform(get(EMPLOYEE_API_PATH)
+                        .with(httpBasic(TEST_USERNAME, "incorrect-password"))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void getMissingEmployeeWithValidCredentialsReturnsNotFound() throws Exception {
+        mockMvc.perform(get(EMPLOYEE_API_PATH + "/00000000-0000-0000-0000-000000000000")
+                        .with(httpBasic(TEST_USERNAME, TEST_PASSWORD))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void createEmployeeWithValidCredentialsReturnsOk() throws Exception {
+        mockMvc.perform(
+                        post(EMPLOYEE_API_PATH)
+                                .with(httpBasic(TEST_USERNAME, TEST_PASSWORD))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
+                                {
+                                  "firstName": "Jane",
+                                  "lastName": "Doe",
+                                  "salary": 75000,
+                                  "age": 30,
+                                  "jobTitle": "Engineer",
+                                  "email": "jane.doe@example.com",
+                                  "contractHireDate": "2026-01-01T00:00:00Z",
+                                  "contractTerminationDate": null
+                                }
+                                """))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void createInvalidEmployeeWithValidCredentialsReturnsBadRequest() throws Exception {
+        mockMvc.perform(
+                        post(EMPLOYEE_API_PATH)
+                                .with(httpBasic(TEST_USERNAME, TEST_PASSWORD))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
+                                {
+                                  "firstName": "Jane",
+                                  "lastName": "Doe",
+                                  "salary": 75000,
+                                  "age": 30,
+                                  "jobTitle": "Engineer",
+                                  "email": "not-an-email",
+                                  "contractHireDate": "2026-01-01T00:00:00Z",
+                                  "contractTerminationDate": null
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+}

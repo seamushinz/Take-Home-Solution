@@ -6,12 +6,8 @@ import com.challenge.api.service.EmployeeService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Fill in the missing aspects of this Spring Web REST Controller. Don't forget to add a Service layer.
@@ -48,8 +44,10 @@ public class EmployeeController {
      * @implNote Need not be concerned with an actual persistence layer.
      * @param requestBody Validated request body containing Employee details
      * @return Newly created Employee
+     * @see EmployeeCreateRequest
      */
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Employee createEmployee(@Valid @RequestBody EmployeeCreateRequest requestBody) {
         return employeeService.createEmployee(requestBody);
     }
