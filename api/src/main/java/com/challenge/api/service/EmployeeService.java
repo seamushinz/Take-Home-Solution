@@ -22,18 +22,9 @@ public class EmployeeService {
 
     private final Map<UUID, Employee> employees;
 
-    /** Initializes the service with mock employee data. */
+    /** Initializes the service with a mock employee repository. */
     public EmployeeService() {
         employees = new ConcurrentHashMap<>();
-        Employee employee1 = new EmployeeImplementation(UUID.randomUUID());
-        employee1.setFullName("John Doe");
-        employee1.setEmail("john.doe@example.com");
-        employees.put(employee1.getUuid(), employee1);
-        Employee employee2 = new EmployeeImplementation(UUID.randomUUID());
-        employee2.setFullName("George Rowan");
-        employee2.setEmail("george.rowan@reliaquest.com");
-        employee2.setAge(30);
-        employees.put(employee2.getUuid(), employee2);
     }
 
     /**
